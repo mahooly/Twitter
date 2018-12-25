@@ -1,13 +1,15 @@
 from django.contrib.auth.models import User
 from django.db import models
+import uuid
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='../media/profile_pics/', default='../media/profile_pics/no-picture.png')
     bio = models.TextField(max_length=100, default=None, null=True)
-    joined = models.DateField()
+    joined = models.DateField(auto_now_add=True)
     birthday = models.DateField(default=None, null=True)
+    authentication_key = models.UUIDField(unique=True, default=uuid.uuid4)
 
 
 class Tweet(models.Model):

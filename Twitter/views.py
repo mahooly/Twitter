@@ -3,8 +3,6 @@ from django.shortcuts import render, redirect
 from Twitter.forms import *
 from django.contrib.auth import login, authenticate, logout
 from Twitter.models import *
-import datetime
-from django.http import HttpRequest
 
 
 def index(request):
@@ -22,7 +20,7 @@ def index(request):
                     username = signupform.cleaned_data['username']
                     password = signupform.cleaned_data['password1']
                     account = signupform.save()
-                    Profile.objects.create(user=account, joined=datetime.datetime.today())
+                    Profile.objects.create(user=account)
                     user = authenticate(username=username, password=password)
                     login(request, user)
                     return redirect('/')
