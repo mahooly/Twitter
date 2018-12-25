@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+    <div class="row">
+        <div class="col-3">
+            <div class="row">
+                <img src="{{ user.profile.image }}" class="profile-avatar"/>
+            </div>
+            <div class="profile-username">
+                <a href="/{{ user.username }}/"><h4 style="font-size: 20px">{{ user.first_name }}</h4></a>
+                <a href="/{{ user.username }}/"><p>@{{ user.username }}</p></a>
+            </div>
+
+            <div class="row" style="margin: -10px 8px 10px 0; font-size: 15px;">
+                {{ user.profile.bio }}
+            </div>
+
+            <div class="row">
+                <i class="fa fa-calendar fa-sm"
+                   style="margin-left: 15px; color: rgba(0, 0, 0, .5); display: inline-block"></i>
+                <p style="display: inline-block; color: rgba(0, 0, 0, .5); font-size: 13px; padding-left: 5px">
+                    Joined {{ user.profile.joined }}</p>
+            </div>
+
+            <div class="row" style="margin-top: -5px">
+                <i class="fa fa-birthday-cake fa-sm profile-birthday-cake"></i>
+                <p class="profile-birthday">Born {{ user.profile.birthday }}</p>
+            </div>
+
+            {% ifnotequal request.user user %}
+                {% if request.user in user_followers %}
+                    <a href="/{{ user.username }}/stopfollow/" class="btn btn-sm tweet-button"
+                       style="margin-left: 60px">Following</a>
+                {% else %}
+                    <a href="/{{ user.username }}/follow/" class="btn btn-sm follow-button">Follow</a>
+                {% endif %}
+            {% endifnotequal %}
+        </div>
+
+        <div class="col-8">
+            <nav class="navbar navbar-expand-md navbar-light twitter-navbar" style="margin-bottom: 20px">
+                <div class="collapse navbar-collapse" style="margin-top: -10px; margin-bottom: -10px;">
+                    <ul class="navbar-nav" style="margin-left: 250px">
+                        <li class="nav-item">
+                            <div class="box-flex">
+                                <a style="font-size: 12px; color: rgba(0, 0, 0, .5);">Tweets</a>
+                                <p>{{ tweets.count }}</p>
+                            </div>
+
+                        </li>
+                        <li class="nav-item">
+                            <div class="box-flex">
+                                <a href="/{{ user.username }}/following/" style="font-size: 12px">Following</a>
+                                <p>{{ follows.count }}</p>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <div class="box-flex">
+                                <a href="/{{ user.username }}/followers/" style="font-size: 12px">Followers</a>
+                                <p>{{ followers.count }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            {% if tweets %}
+                {% for tweet in tweets %}
+                    <div class="card">
+                        <div class="card-body tweet-card">
+                            <div style="display: flex; justify-content: space-between">
+                                <div style="float: left">
+                                    <img src="{{ user.profile.image }}" class="tweet-card-avatar"/>
+                                    <a href="/{{ tweet.user.username }}/"
+                                       class="tweet-name">{{ tweet.user.first_name }}</a>
+                                    <span class="tweet-info">
+                                @{{ tweet.user.username }} . {{ tweet.created_at }}
+                            </span>
+                                </div>
+                                <p style="float: right; margin: auto 10px; font-size: 13px; font-weight: bold">{{ tweet.title }}</p>
+                            </div>
+                            <p class="card-text tweet-content">{{ tweet.text }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-tweet">No Tweets yet!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

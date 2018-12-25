@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+    <div class="row">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <img src="{{ user.profile.image }}" class="feed-avatar"/>
+                    </div>
+
+                    <div class="row" style="text-align: center; margin-left: 40px">
+                        <div class="feed-username" style="align-content: center">
+                            <h4 style="font-size: 20px">{{ user.first_name }}</h4>
+                            <p>@{{ user.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 10px">
+                        <div class="box-flex">
+                            <a href="/{{ user.username }}/follows/">Tweets</a>
+                            <p>{{ tweets.count }}</p>
+                        </div>
+                        <div class="box-flex">
+                            <a href="/{{ user.username }}/following/">Following</a>
+                            <p>{{ follows.count }}</p>
+                        </div>
+                        <div class="box-flex">
+                            <a href="/{{ user.username }}/followers/">Followers</a>
+                            <p>{{ followers.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-8">
+            {% ifnotequal request.user user %}
+            {% else %}
+                <div class="card">
+                    <div class="card-body tweet-form">
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in form.errors %}
+                                    <div class="alert alert-danger">
+                                        <b>{{ error|escape }}</b>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    <b>{{ error|escape }}</b>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form action="/{{ request.user.username }}/" method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="form-group">
+                                {{ field }}
+                            </div>
+                            {% endfor %}
+                            <input type="hidden" value="{{ request.path }}" name="redirect">
+                            <input type="submit" value="Tweet" class="btn float-right tweet-button">
+                        </form>
+                    </div>
+                </div>
+            {% endifnotequal %}
+
+            {% if tweets %}
+                {% for tweet in tweets %}
+                    <div class="card">
+                        <div class="card-body tweet-card">
+                            <div style="display: flex; justify-content: space-between">
+                                <div style="float: left">
+                                    <img src="{{ user.profile.image }}" class="tweet-card-avatar"/>
+                                    <a href="/{{ tweet.user.username }}/"
+                                       class="tweet-name">{{ tweet.user.first_name }}</a>
+                                    <span class="tweet-info">
+                                @{{ tweet.user.username }} . {{ tweet.created_at }}
+                            </span>
+                                </div>
+                                <p style="float: right; margin: auto 10px; font-size: 13px; font-weight: bold">{{ tweet.title }}</p>
+                            </div>
+                            <p class="card-text tweet-content">{{ tweet.text }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-tweet">No Tweets yet!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
