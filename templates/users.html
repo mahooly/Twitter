@@ -1,12 +1,42 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div>
-  <h1>{{ title }}</h1>
-  <ul>
-    {% for profile in profiles %}
-      <li><a href="/{{ profile.target.username }}/">@{{ profile.target.username }}</a></li>
-    {% endfor %}
-  </ul>
-</div>
+    <div>
+        <h1 style="padding-bottom: 20px">{{ title }}</h1>
+            {% if following %}
+                <div class="row">
+                    {% for profile in profiles %}
+                        <div class="col-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <img src="{{ profile.target.profile.image.url }}" class="profile-avatar">
+                                    <div class="profile-username">
+                                        <a href="/{{ profile.target.username }}/"><h4>{{ profile.target.first_name }}</h4></a>
+                                        <a href="/{{ profile.target.username }}/"><p>@{{ profile.target.username }}</p></a>
+                                    </div>
+                                    <p>{{ profile.target.profile.bio }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for profile in profiles %}
+                        <div class="col-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <img src="{{ profile.user.profile.image.url }}" class="profile-avatar">
+                                    <div class="profile-username">
+                                        <a href="/{{ profile.user.username }}/"><h4>{{ profile.user.first_name }}</h4></a>
+                                        <a href="/{{ profile.user.username }}/"><p>@{{ profile.user.username }}</p></a>
+                                    </div>
+                                    <p>{{ profile.user.profile.bio }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+    </div>
 {% endblock %}

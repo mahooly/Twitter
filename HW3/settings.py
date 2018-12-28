@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_django',
+    'django_user_agents',
     'Twitter',
 ]
 
@@ -49,6 +50,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
+    'Twitter.middleware.RequestMonitorMiddleware',
+    'Twitter.middleware.OneSessionPerUserMiddleware',
 ]
 
 ROOT_URLCONF = 'HW3.urls'
@@ -123,6 +127,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
@@ -142,3 +148,4 @@ LOGIN_REDIRECT_URL = 'feed'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '579197530933-9n0f4td0amus07u6pmrv96rau9sk9h7i.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'in-dPC9JrXyPQ2bRdlmtm9ub'
+

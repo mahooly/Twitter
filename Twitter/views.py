@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.sessions.models import Session
 from django.shortcuts import render, redirect
 from Twitter.forms import *
 from django.contrib.auth import login, authenticate, logout
@@ -6,8 +7,6 @@ from Twitter.models import *
 
 
 def index(request):
-    print(request.META.get('REMOTE_ADDR'))
-    print(request.META.get('HTTP_USER_AGENT'))
     if request.user.is_authenticated:
         return redirect('/feed/')
     else:
@@ -29,8 +28,18 @@ def index(request):
                 signupform = SignupForm()
 
                 if signinform.is_valid():
-                    login(request, signinform.get_user())
+                    username = signinform.cleaned_data['username']
+                    password = signinform.cleaned_data['password']
+                    user = authenticate(username=username, password=password)
+                    if user is not None:
+                        login(request, user)
                     return redirect('/')
+
+                else:
+                    data = request.data_object
+                    data.authorized = False
+                    data.save()
+
         else:
             signupform = SignupForm()
             signinform = SigninForm()
@@ -40,6 +49,8 @@ def index(request):
 
 @login_required
 def signout(request):
+    log = LoggedInUser.objects.get(user=request.user)
+    log.delete()
     logout(request)
     return redirect('/')
 
@@ -50,18 +61,20 @@ def profile(request, username):
         follow_all = Follow.objects.all()
         follows = Follow.objects.filter(user=user)
         followers = Follow.objects.filter(target=user)
-        user_followers = []
-        for follow in follow_all:
-            if follow.target == user:
-                user_followers.append(follow.user)
+        try:
+            followers.filter(user=request.user)
+            user_follows = True
+        except:
+            user_follows = False
+        print(user_follows)
         tweets = Tweet.objects.filter(user=user).order_by('-created_at')
         if request.method == 'POST':
             form = TweetForm(data=request.POST)
 
             if form.is_valid():
-                djeet = form.save(commit=False)
-                djeet.user = request.user
-                djeet.save()
+                tweet = form.save(commit=False)
+                tweet.user = request.user
+                tweet.save()
 
                 redirecturl = request.POST.get('redirect', '/')
 
@@ -69,7 +82,8 @@ def profile(request, username):
         else:
             form = TweetForm()
 
-        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows, 'user_followers': user_followers, 'tweets': tweets})
+        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows,
+                                                'user_follows': user_follows, 'tweets': tweets})
     else:
         return redirect('/')
 
@@ -80,18 +94,14 @@ def feed(request):
         follow_all = Follow.objects.all()
         follows = Follow.objects.filter(user=user)
         followers = Follow.objects.filter(target=user)
-        user_followers = []
-        for follow in follow_all:
-            if follow.target == user:
-                user_followers.append(follow.user)
         tweets = Tweet.objects.all().order_by('-created_at')
         if request.method == 'POST':
             form = TweetForm(data=request.POST)
 
             if form.is_valid():
-                djeet = form.save(commit=False)
-                djeet.user = request.user
-                djeet.save()
+                tweet = form.save(commit=False)
+                tweet.user = request.user
+                tweet.save()
 
                 redirecturl = request.POST.get('redirect', '/')
 
@@ -99,7 +109,8 @@ def feed(request):
         else:
             form = TweetForm()
 
-        return render(request, 'feed.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows, 'user_followers': user_followers, 'tweets': tweets})
+        return render(request, 'feed.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows,
+                                             'tweets': tweets})
     else:
         return redirect('/')
 
@@ -107,15 +118,13 @@ def feed(request):
 def follows(request, username):
     user = User.objects.get(username=username)
     profiles = Follow.objects.filter(user=user)
-    print(profiles)
-    return render(request, 'users.html', {'title': 'Follows', 'profiles': profiles})
+    return render(request, 'users.html', {'title': 'Following', 'profiles': profiles, 'following': True})
 
 
 def followers(request, username):
     user = User.objects.get(username=username)
     profiles = Follow.objects.filter(target=user)
-    print(profiles)
-    return render(request, 'users.html', {'title': 'Followers', 'profiles': profiles})
+    return render(request, 'users.html', {'title': 'Followers', 'profiles': profiles, 'following': False})
 
 
 @login_required
@@ -146,4 +155,3 @@ def edit_profile(request):
     else:
         form = EditProfileForm(initial={'bio': profile.bio, 'birthday': profile.birthday})
     return render(request, 'edit_profile.html', {'form': form, 'user': user})
-
