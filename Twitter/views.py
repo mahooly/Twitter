@@ -61,7 +61,6 @@ def signout(request):
 def profile(request, username):
     if request.user.is_authenticated:
         user = User.objects.get(username=username)
-        follow_all = Follow.objects.all()
         follows = Follow.objects.filter(user=user)
         followers = Follow.objects.filter(target=user)
         try:
@@ -69,7 +68,6 @@ def profile(request, username):
             user_follows = True
         except:
             user_follows = False
-        print(user_follows)
         tweets = Tweet.objects.filter(user=user).order_by('-created_at')
         if request.method == 'POST':
             form = TweetForm(data=request.POST)
@@ -190,6 +188,9 @@ def tweet_by_token(request):
         return JsonResponse(response)
     except ValidationError:
         response = {"status": "Validation Error"}
+        data = request.data_object
+        data.authorized = False
+        data.save()
         return JsonResponse(response)
 
 
@@ -200,13 +201,23 @@ def get_token_v1(request):
         username = body["username"]
         password = body["password"]
         user = authenticate(username=username, password=password)
-        Token.objects.filter(user=user).delete()
-        token = Token.objects.create(user=user)
-        response = {"authentication_key": token.authentication_key}
-        return JsonResponse(response)
+        if user is not None:
+            Token.objects.filter(user=user).delete()
+            token = Token.objects.create(user=user)
+            response = {"authentication_key": token.authentication_key}
+            return JsonResponse(response)
+        else:
+            data = request.data_object
+            data.authorized = False
+            data.save()
+            response = {"status": "Wrong username or password"}
+            return JsonResponse(response)
     except KeyError:
         response = {"status": "Key Not Found"}
         return JsonResponse(response)
     except AttributeError:
         response = {"status": "Wrong username or password"}
+        data = request.data_object
+        data.authorized = False
+        data.save()
         return JsonResponse(response)
