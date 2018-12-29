@@ -65,7 +65,7 @@ def profile(request, username):
         follows = Follow.objects.filter(user=user)
         followers = Follow.objects.filter(target=user)
         try:
-            followers.filter(user=request.user)
+            followers.get(user=request.user)
             user_follows = True
         except:
             user_follows = False
@@ -85,7 +85,8 @@ def profile(request, username):
         else:
             form = TweetForm()
 
-        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows, 'user_follows': user_follows, 'tweets': tweets})
+        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows,
+                                                'user_follows': user_follows, 'tweets': tweets})
     else:
         return redirect('/')
 
@@ -188,4 +189,22 @@ def tweet_by_token(request):
         return JsonResponse(response)
     except ValidationError:
         response = {"status": "Validation Error"}
+        return JsonResponse(response)
+
+
+@csrf_exempt
+def get_token_v1(request):
+    try:
+        body = json.loads(request.body)
+        username = body["username"]
+        password = body["password"]
+        user = authenticate(username=username, password=password)
+        token, created = Token.objects.get_or_create(user=user)
+        response = {"authentication_key": token.authentication_key}
+        return JsonResponse(response)
+    except KeyError:
+        response = {"status": "Key Not Found"}
+        return JsonResponse(response)
+    except AttributeError:
+        response = {"status": "Wrong username or password"}
         return JsonResponse(response)

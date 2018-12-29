@@ -52,7 +52,7 @@ class EditProfileForm(forms.ModelForm):
     bio = forms.CharField(required=False,
                           widget=forms.widgets.Textarea(attrs={'placeholder': 'Bio', 'class': 'form-control'}))
     birthday = forms.CharField(required=False, widget=forms.widgets.DateInput(
-        attrs={'placeholder': 'Birthday', 'class': 'form-control'}))
+        attrs={'placeholder': 'year-month-day', 'class': 'form-control'}))
     image = forms.ImageField(required=False)
 
     class Meta:
