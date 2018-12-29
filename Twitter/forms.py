@@ -20,6 +20,13 @@ class SignupForm(UserCreationForm):
         fields = ['email', 'username', 'first_name', 'password1', 'password2']
         model = User
 
+    def clean(self):
+        cleaned_data = super(SignupForm, self).clean()
+        confirm_password = cleaned_data.get('password2')
+        password = cleaned_data.get('password1')
+        if not password == confirm_password:
+            raise forms.ValidationError('Password does not match.')
+
 
 class SigninForm(AuthenticationForm):
     username = forms.CharField(
@@ -32,7 +39,9 @@ class TweetForm(forms.ModelForm):
     title = forms.CharField(required=True,
                             widget=forms.widgets.TextInput(attrs={'placeholder': 'Title', 'class': 'form-control'}))
     text = forms.CharField(required=True,
-                           widget=forms.widgets.Textarea(attrs={'placeholder': "What's Happening?", 'class': 'form-control', 'rows': "1", 'cols': "40", 'onfocus': "this.rows=3;", 'onblur': "this.rows=1;"}))
+                           widget=forms.widgets.Textarea(
+                               attrs={'placeholder': "What's Happening?", 'class': 'form-control', 'rows': "1",
+                                      'cols': "40", 'onfocus': "this.rows=3;", 'onblur': "this.rows=1;"}))
 
     class Meta:
         model = Tweet
@@ -40,8 +49,10 @@ class TweetForm(forms.ModelForm):
 
 
 class EditProfileForm(forms.ModelForm):
-    bio = forms.CharField(required=False, widget=forms.widgets.Textarea(attrs={'placeholder': 'Bio', 'class': 'form-control'}))
-    birthday = forms.CharField(required=False, widget=forms.widgets.DateInput(attrs={'placeholder': 'Birthday', 'class': 'form-control'}))
+    bio = forms.CharField(required=False,
+                          widget=forms.widgets.Textarea(attrs={'placeholder': 'Bio', 'class': 'form-control'}))
+    birthday = forms.CharField(required=False, widget=forms.widgets.DateInput(
+        attrs={'placeholder': 'Birthday', 'class': 'form-control'}))
     image = forms.ImageField(required=False)
 
     class Meta:

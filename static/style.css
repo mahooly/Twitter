@@ -234,6 +234,9 @@ body {
     text-align: center;
 }
 
+.follow-header {
+    margin-bottom: 20px;
+}
 .input-search {
     font-size: 13px;
 }

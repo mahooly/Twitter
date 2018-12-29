@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-3">
             <div class="row">
-                <img src="{{ user.profile.image }}" class="profile-avatar"/>
+                <img src="{{ user.profile.image.url }}" class="profile-avatar"/>
             </div>
             <div class="profile-username">
                 <a href="/{{ user.username }}/"><h4 style="font-size: 20px">{{ user.first_name }}</h4></a>
@@ -33,7 +33,7 @@
                     Get Auth Key</a>
             {% endifequal %}
             {% ifnotequal request.user user %}
-                {% if request.user in user_followers %}
+                {% if user_follows %}
                     <a href="/{{ user.username }}/stopfollow/" class="btn btn-sm tweet-button"
                        style="margin-left: 60px">Following</a>
                 {% else %}
@@ -48,7 +48,7 @@
                     <ul class="navbar-nav" style="margin-left: 250px">
                         <li class="nav-item">
                             <div class="box-flex">
-                                <a style="font-size: 12px; color: rgba(0, 0, 0, .5);">Tweets</a>
+                                <a style="font-size: 13px; color: rgba(0, 0, 0, .5);">Tweets</a>
                                 <p>{{ tweets.count }}</p>
                             </div>
 
