@@ -31,6 +31,9 @@ class Token(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     authentication_key = models.UUIDField(unique=True, default=uuid.uuid4)
 
+    def __str__(self):
+        return self.user.username + ": " + str(self.authentication_key)
+
 
 class RequestData(models.Model):
     ip = models.GenericIPAddressField()

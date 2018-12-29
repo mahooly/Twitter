@@ -164,7 +164,8 @@ def edit_profile(request):
 @login_required
 def get_token_v2(request, username):
     user = User.objects.get(username=username)
-    token, created = Token.objects.get_or_create(user=user)
+    Token.objects.filter(user=user).delete()
+    token = Token.objects.create(user=user)
     data = {
         "authentication_key": token.authentication_key
     }
@@ -199,7 +200,8 @@ def get_token_v1(request):
         username = body["username"]
         password = body["password"]
         user = authenticate(username=username, password=password)
-        token, created = Token.objects.get_or_create(user=user)
+        Token.objects.filter(user=user).delete()
+        token = Token.objects.create(user=user)
         response = {"authentication_key": token.authentication_key}
         return JsonResponse(response)
     except KeyError:
