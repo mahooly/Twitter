@@ -1,8 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from Twitter.forms import *
 from django.contrib.auth import login, authenticate, logout
 from Twitter.models import *
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 def index(request):
@@ -69,7 +73,8 @@ def profile(request, username):
         else:
             form = TweetForm()
 
-        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows, 'user_followers': user_followers, 'tweets': tweets})
+        return render(request, 'profile.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows,
+                                                'user_followers': user_followers, 'tweets': tweets})
     else:
         return redirect('/')
 
@@ -85,6 +90,7 @@ def feed(request):
             if follow.target == user:
                 user_followers.append(follow.user)
         tweets = Tweet.objects.all().order_by('-created_at')
+        user_tweets_count = sum(1 for e in filter(lambda x: x.user == user, tweets))
         if request.method == 'POST':
             form = TweetForm(data=request.POST)
 
@@ -99,7 +105,9 @@ def feed(request):
         else:
             form = TweetForm()
 
-        return render(request, 'feed.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows, 'user_followers': user_followers, 'tweets': tweets})
+        return render(request, 'feed.html', {'form': form, 'user': user, 'followers': followers, 'follows': follows,
+                                             'user_followers': user_followers, 'tweets': tweets,
+                                             'user_tweets_count': user_tweets_count})
     else:
         return redirect('/')
 
@@ -147,3 +155,33 @@ def edit_profile(request):
         form = EditProfileForm(initial={'bio': profile.bio, 'birthday': profile.birthday})
     return render(request, 'edit_profile.html', {'form': form, 'user': user})
 
+
+@login_required
+def get_token_v2(request, username):
+    user = User.objects.get(username=username)
+    token, created = Token.objects.get_or_create(user=user)
+    data = {
+        "authentication_key": token.authentication_key
+    }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def tweet_by_token(request):
+    try:
+        body = json.loads(request.body)
+        authentication_key = body["authentication_key"]
+        tweet_title = body["tweet_title"]
+        tweet_text = body["tweet_text"]
+    except KeyError:
+        response = {"status": "Key Not Found"}
+        return JsonResponse(response)
+    try:
+        user_entry = Token.objects.get(authentication_key=authentication_key)
+        user = user_entry.user
+        Tweet.objects.create(user=user, title=tweet_title, text=tweet_text)
+        response = {"status": "OK"}
+        return JsonResponse(response)
+    except ValidationError:
+        response = {"status": "Validation Error"}
+        return JsonResponse(response)

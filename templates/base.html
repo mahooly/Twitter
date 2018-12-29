@@ -26,7 +26,8 @@
         <ul class="navbar-nav">
             {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                    <a href="/{{ request.user.username }}/"><img src="{{ request.user.profile.image.url }}" style="border-radius: 50%; height: 30px; width: 30px; margin-top: 5px; margin-right: 10px"/></a>
+                    <a href="/{{ request.user.username }}/"><img src="{{ request.user.profile.image.url }}"
+                                                                 style="border-radius: 50%; height: 30px; width: 30px; margin-top: 5px; margin-right: 10px"/></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>

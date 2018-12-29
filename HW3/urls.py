@@ -33,4 +33,6 @@ urlpatterns = [
                   path('<str:username>/followers/', views.followers, name='following'),
                   path('<str:username>/follow/', views.follow, name='follow'),
                   path('<str:username>/stopfollow/', views.stopfollow, name='stopfollow'),
+                  path('<str:username>/get_token_v2/', views.get_token_v2, name='get_token_v2'),
+                  path('api/v2/tweet', views.tweet_by_token, name='tweet_by_token'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

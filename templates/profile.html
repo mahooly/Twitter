@@ -28,6 +28,10 @@
                 <p class="profile-birthday">Born {{ user.profile.birthday }}</p>
             </div>
 
+            {%  ifequal request.user user %}
+                <a href="/{{ user.username }}/get_token_v2/" class="btn btn-sm tweet-button" style="margin-left: 60px">
+                    Get Auth Key</a>
+            {% endifequal %}
             {% ifnotequal request.user user %}
                 {% if request.user in user_followers %}
                     <a href="/{{ user.username }}/stopfollow/" class="btn btn-sm tweet-button"

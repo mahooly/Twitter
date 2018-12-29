@@ -9,7 +9,6 @@ class Profile(models.Model):
     bio = models.TextField(max_length=100, default=None, null=True)
     joined = models.DateField(auto_now_add=True)
     birthday = models.DateField(default=None, null=True)
-    authentication_key = models.UUIDField(unique=True, default=uuid.uuid4)
 
 
 class Tweet(models.Model):
@@ -26,3 +25,8 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = ('user', 'target')
+
+
+class Token(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    authentication_key = models.UUIDField(unique=True, default=uuid.uuid4)
