@@ -93,8 +93,8 @@ def profile(request, username):
 
 def feed(request):
     if request.user.is_authenticated:
+        Profile.objects.get_or_create(user=request.user)
         user = User.objects.get(username=request.user.username)
-        follow_all = Follow.objects.all()
         follows = Follow.objects.filter(user=user)
         followers = Follow.objects.filter(target=user)
         tweets = Tweet.objects.all().order_by('-created_at')
